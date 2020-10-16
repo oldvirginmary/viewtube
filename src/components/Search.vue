@@ -77,6 +77,11 @@ export default {
       else return ""
     }
   },
+  beforeCreate: function () {
+    if (!this.$store.state.currentUser) {
+      this.$router.replace("/")
+    }
+  },
   methods: {
     search: function (query) {
       let self = this
@@ -125,12 +130,9 @@ export default {
         })
       })
     },
-    direction: function (to) {
-      this.$store.dispatch("direction", to)
-    },
     closeSession: function () {
       this.$store.dispatch("closeSession")
-      window.location.reload()
+      this.$router.replace("/")
     }
   }
 }

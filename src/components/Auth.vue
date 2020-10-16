@@ -67,6 +67,11 @@ export default {
       return JSON.parse(JSON.stringify(this.$store.state.users)) || {}
     }
   },
+  beforeCreate: function () {
+    if (this.$store.state.currentUser) {
+      this.$router.replace("/search")
+    }
+  },
   methods: {
     submitUserForm: function (to) {
       let self = this
@@ -94,7 +99,7 @@ export default {
         }
 
         if (isCorrect) 
-          self.$store.dispatch("direction", to)
+          self.$router.push({ path: to })
 
         else {
           self.$notification.error({

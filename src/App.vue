@@ -1,47 +1,12 @@
 <template>
   <div id="app">
-    <component :is="ViewComponent"></component>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import NotFound from './components/NotFound.vue'
-import Auth from './components/Auth.vue'
-import Search from './components/Search.vue'
-
-const routes = {
-  '/': Auth,
-  '/search': Search,
-}
-
 export default {
   name: 'App',
-  computed: {
-    ViewComponent: function () {
-      return routes[this.currentRoute] || NotFound
-    },
-    currentRoute: function () {
-      return this.$store.state.currentRoute
-    }
-  },
-  beforeCreate: function () {
-    if (
-      !this.$store.state.currentUser &&
-      Object.keys(routes).includes(window.location.pathname) &&
-      window.location.pathname !== "/"
-    ) {
-      window.location.pathname = "/"
-    } else if (this.$store.state.currentUser && window.location.pathname === "/") {
-      window.location.pathname = "/search"
-    }
-  },
-  mounted: function () {
-    let self = this
-
-    window.addEventListener("popstate", function () {
-      self.$store.commit("changeRoute", window.location.pathname)
-    })
-  }
 }
 </script>
 

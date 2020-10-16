@@ -3,9 +3,8 @@ import "es6-promise/auto"
 
 /* Vue */
 import Vue from 'vue'
-
-/* Store */
-import Store from './store.js'
+import store from './store.js'
+import router from './router.js'
 
 /* Ant design */
 import Antd from 'ant-design-vue'
@@ -21,9 +20,10 @@ import App from "./App.vue"
 
 Vue.config.productionTip = false
 
-Vue.use(Antd);
+Vue.use(Antd)
 
 new Vue({
-  store: Store,
+  store,
+  router,
   render: h => h(App),
 }).$mount('#app')
