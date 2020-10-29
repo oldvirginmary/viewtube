@@ -1,78 +1,90 @@
 <template>
-  <section class="videos">
-    <a-row 
-      v-for="row in videos"
-      :key="videos.indexOf(row)"
-      class="videos-row"
+  <section :class="[
+      'videos',
+      {'videos--list': displayType === 'list'},
+      {'videos--grid': displayType === 'grid'},
+    ]"
+  >
+    <a 
+      class="video"
+      v-for="video in videos.items" 
+      :href="getVideoLink(video)"
+      :key="video.id"
+      target="_blank"
     >
-      <a-col 
-        v-for="video in row"
-        :key="video.id"
-        @click="showVideo(video)"
-        class="video"
-      >
-        <img class="video__preview" :src="video.preview">
-        <h2 class="video__title">{{ video.title }}</h2>
+      <img class="video__preview" :src="video.preview">
+      <div class="video__description-wrapper">
+        <h2 class="video__title">
+          {{ displayType === "grid" ? limitStr(video.title, 60) : limitStr(video.title, 400) }}
+        </h2>
         <p class="video__channel">{{ video.channel }}</p>
         <p class="video__views">{{ video.viewCount }} просмотров</p>
-      </a-col>
-    </a-row>
+      </div>
+    </a>
   </section>
 </template>
 
 
 <script>
+import limitStr from './functions/limitStr.js'
+
 export default {
   name: "Videos",
-  props: ["rawVideos"],
-  computed: {
-    videos: function () {
-      let rawVideos = this.rawVideos.slice()
-      let videos = []
-
-      for (let i = 0; i < rawVideos.length; i++) {
-        
-        if (this.rawVideos.length - i <= 4) {
-          videos.push(rawVideos.splice(i, 4))
-        } else {
-          videos.push(rawVideos.splice(i, 4))
-          i--
-        }
-      }
-
-      return videos
-    }
+  props: ["videos", "display-type"],
+  data: function () {
+    return {isItVis: true,}
   },
   methods: {
-    showVideo: function (video) {
-      window.location.href = "https://www.youtube.com/watch?v=" + video.id
+    getVideoLink: function (video) {
+      return "https://www.youtube.com/watch?v=" + video.id
+    },
+    limitStr: function (str, num, symb) {
+      return limitStr(str, num, symb)
     }
-  }
+  },
 }
 </script>
 
 
-<style scoped>
-.videos-row {
-  display: flex;
-  margin-bottom: 30px;
+<style lang="scss" scoped>
+
+.videos {
+  &--grid {
+    display: flex;
+    flex-wrap: wrap;
+
+    .video {
+      flex-direction: column;
+      width: 235px;
+
+      &:not(:nth-child(4n)) {
+        margin-right: 28px;
+      }
+    }
+
+    .video__preview {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+  }
+
+  &--list {
+    .video {
+      width: 700px;
+      margin-bottom: 22px;
+    }
+
+    .video__preview {
+      width: 235px;
+      margin-right: 20px;
+    }
+  }
 }
 
 .video {
-  width: 235px;
+  display: flex;
+  margin-bottom: 28px;
   cursor: pointer;
-}
-
-.video:not(:last-child) {
-  margin-right: 28px;
-}
-
-.video:hover .video__preview {
-  box-shadow: 0 0 0 3px #1890ff;
-}
-
-.video__preview {
-  width: 100%;
 }
 
 .video__title,
@@ -82,16 +94,16 @@ export default {
 }
 
 .video__title {
+  margin-bottom: 8px;
   font-size: 14px;
+  line-height: 16px;
+  font-weight: bold;
 }
 
-.video__channel {
-  font-size: 13px;
-  color: gray;
-}
-
+.video__channel,
 .video__views {
   font-size: 13px;
+  line-height: 16px;
   color: gray;
 }
 </style>

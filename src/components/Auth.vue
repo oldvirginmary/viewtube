@@ -1,6 +1,8 @@
 <template>
   <a-layout class="auth-block">
-    <img class="logo" src="../assets/images/tubes.svg" alt="ViewTube">
+    <IconBase class="logo" width="80" height="80" viewBox="0 0 512 512" color="black">
+      <IconTubes />
+    </IconBase>
     <h1 class="page-title">{{ isRegistration ? 'Создание аккаунта' : 'Вход' }}</h1>
     <a-form-model class="auth-form" 
       @submit.prevent="submitUserForm('/search')"
@@ -38,10 +40,17 @@
 
 
 <script>
-import { login, registration } from "./auth/functions/login.js"
+import { authentication, registration } from "./auth/functions/account.js"
+
+import IconBase from './main/IconBase.vue'
+import IconTubes from './main/icons/IconTubes.vue'
 
 export default {
   name: "Auth",
+  components: {
+    IconBase,
+    IconTubes,
+  },
   data: function () {
     return {
       isRegistration: false,
@@ -68,16 +77,14 @@ export default {
     }
   },
   beforeCreate: function () {
-    if (this.$store.state.currentUser) {
-      this.$router.replace("/search")
-    }
+    if (this.$store.state.currentUser) this.$router.replace("/search")
   },
   methods: {
     submitUserForm: function (to) {
       let self = this
       let user = JSON.parse(JSON.stringify(self.user))
 
-      this.$refs.userForm.validate(formValid => {
+      this.$refs.userForm.validate(function (formValid) {
         if (!formValid) return
 
         let isCorrect = false
@@ -86,21 +93,21 @@ export default {
         if (self.isRegistration) {
           userToken = registration(user)
 
-          self.$store.dispatch("createUser", userToken)
+          self.$store.commit("createUser", userToken)
+          self.$store.commit("changeUser", userToken)
           isCorrect = true
 
         } else {
-          userToken = login(user, self.allUsers)
+          userToken = authentication(user, self.allUsers)
 
           if (userToken.key) {
-            self.$store.dispatch("changeUser", userToken)
+            self.$store.commit("changeUser", userToken)
             isCorrect = true
           }
         }
 
         if (isCorrect) 
           self.$router.push({ path: to })
-
         else {
           self.$notification.error({
             message: "Пользователь не найден",
@@ -123,6 +130,7 @@ export default {
 
 
 <style scoped>
+
 .auth-block {
   position: absolute;
   top: 50%;
@@ -141,9 +149,7 @@ export default {
 }
 
 .logo {
-  width: 80px;
   margin-bottom: 25px;
-  margin-right: 0;
 }
 
 .page-title {

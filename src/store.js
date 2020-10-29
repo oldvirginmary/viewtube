@@ -3,37 +3,58 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex)
 
+let local = {
+  users: localStorage.getItem("users") ? 
+    JSON.parse(localStorage.getItem("users")) : null,
+  currentUser: localStorage.getItem("currentUser") ? 
+    JSON.parse(localStorage.getItem("currentUser")) : null,
+}
+
 export default new Vuex.Store({
   state: {
-    users: JSON.parse(localStorage.getItem("users")),
-    currentUser: JSON.parse(localStorage.getItem("currentUser"))
+    users: local.users,
+    currentUser: local.currentUser,
   },
   mutations: {
-    syncStorage(state) {
-      state.users = JSON.parse(localStorage.getItem("users"))
-      state.currentUser = JSON.parse(localStorage.getItem("currentUser"))
-    },
-  },
-  actions: {
-    createUser(context, userData) {
-      let users = context.state.users || {}
-      users[userData.login] = userData.key
+    createUser(state, userData) {
+      let users = state.users || {}
+      users[userData.login] = {
+        key: userData.key,
+        searches: [],
+      }
 
+      state.users = users
       localStorage.setItem("users", JSON.stringify(users))
-      context.commit("syncStorage")
-
-      context.dispatch("changeUser", userData)
     },
-    changeUser(context, userData) {
-      let currentUser = {}
-      currentUser[userData.login] = userData.key
+    changeUser(state, userData) {
+      let user = state.currentUser || {}
+      user = {
+        login: userData.login,
+        key: state.users[userData.login].key,
+      }
 
-      localStorage.setItem("currentUser", JSON.stringify(currentUser))
-      context.commit("syncStorage")
+      state.currentUser = user
+
+      localStorage.setItem("currentUser", JSON.stringify(user))
     },
-    closeSession(context) {
+    closeSession(state) {
+      state.currentUser = null
       localStorage.removeItem("currentUser")
-      context.commit("syncStorage")
+    },
+    addSearch(state, search) {
+      if (typeof search.index == "number") { // существует ли свойство index
+        state.users[state.currentUser.login]
+          .searches[search.index] = search.data
+      } else {
+        state.users[state.currentUser.login].searches.push(search.data)
+      }
+      
+      localStorage.setItem("users", JSON.stringify(state.users))
+    },
+    removeSearch(state, searchIndex) {
+      state.users[state.currentUser.login].searches.splice(searchIndex, 1)
+      
+      localStorage.setItem("users", JSON.stringify(state.users))
     },
   },
 })
