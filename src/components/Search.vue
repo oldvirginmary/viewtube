@@ -54,10 +54,7 @@
 
 
 <script>
-// import axios from 'axios'
-
-import searchData from './search/search.js'
-import videosData from './search/videos.js'
+import axios from 'axios'
 
 import Header from './main/Header.vue'
 import SaveSearch from './search/SaveSearch.vue'
@@ -67,7 +64,7 @@ import IconBase from './main/IconBase.vue'
 import IconList from './main/icons/IconList.vue'
 import IconGrid from './main/icons/IconGrid.vue'
 
-// import {apiKey} from '../../api-key.js'
+import {apiKey} from '../../api-key.js'
 
 export default {
   name: "Search",
@@ -137,116 +134,69 @@ export default {
       this.search()
     },
     search: function (query) {
+      let self = this
+
       if (query) {
-        console.log(query)
-        this.request = Object.assign(
-          { ...this.defaultRequest }, 
+        self.request = Object.assign(
+          { ...self.defaultRequest }, 
           { query: query }
         )
 
-        this.$router.push({ query: { query: this.request.query } })
+        self.$router.push({ query: { query: self.request.query } })
       }
 
-      this.request.query.replace(" ", "")
+      self.request.query.replace(" ", "")
 
-      if (this.request.query === "") {
+      if (self.request.query === "") {
         return
       }
 
-      let tempVideos = []
-      let videosIds = []
+      axios.get("https://www.googleapis.com/youtube/v3/search", {
+        params: {
+          key: apiKey,
+          part: "snippet",
+          type: "video",
+          order: self.request.sortBy || "searchSortUnspecified",
+          maxResults: self.request.maxAmount || 12,
+          q: self.request.query,
+        }
+      }).then(function (response) {
+        let tempVideos = []
+        let videosIds = []
 
-      this.videos.videosAmount = searchData.pageInfo.totalResults
+        self.videos.videosAmount = response.data.pageInfo.totalResults
 
-      searchData.items.forEach(function (video) {
-        videosIds.push(video.id.videoId)
+        response.data.items.forEach(function (video) {
+          videosIds.push(video.id.videoId)
 
-        tempVideos.push({
-          id: video.id.videoId,
-          title: video.snippet.title
-            .replace(/&amp;quot;/g,'"').replace(/&amp;quot/g,'"').replace(/&quot;/g,'"'),
-          channel: video.snippet.channelTitle,
-          preview: video.snippet.thumbnails.medium.url
+          tempVideos.push({
+            id: video.id.videoId,
+            title: video.snippet.title
+              .replace(/&amp;quot;/g,'"').replace(/&amp;quot/g,'"').replace(/&quot;/g,'"'),
+            channel: video.snippet.channelTitle,
+            preview: video.snippet.thumbnails.medium.url,
+          })
         })
+
+        /* Getting videos views */
+        axios.get("https://www.googleapis.com/youtube/v3/videos", {
+          params: {
+            key: apiKey,
+            part: "statistics",
+            id: videosIds.join(),
+          }
+        }).then(function (response) {
+          let videos = response.data.items
+
+          for (let i = 0; i < videos.length; i++) {
+            tempVideos[i].viewCount = Number(videos[i].statistics.viewCount)
+          }
+
+          self.videos.items = tempVideos.splice(0, tempVideos.length)
+        })
+      }).then(function () {
+        self.isSearchCompleted = true
       })
-
-
-      let videos = videosData.items
-
-      for (let i = 0; i < videos.length; i++) {
-        tempVideos[i].viewCount = Number(videos[i].statistics.viewCount)
-      }
-
-      this.videos.items = tempVideos.splice(0, tempVideos.length)
-
-      this.isSearchCompleted = true
-
-
-
-
-      // let self = this
-
-      // if (query) {
-      //   self.request = Object.assign(
-      //     { ...this.defaultRequest }, 
-      //     { query: query }
-      //   )
-
-      //   self.$router.push({ query: { query: self.request.query } })
-      // }
-
-      // self.request.query.replace(" ", "")
-
-      // if (self.request.query === "") {
-      //   return
-      // }
-
-      // axios.get("https://www.googleapis.com/youtube/v3/search", {
-      //   params: {
-      //     key: apiKey,
-      //     part: "snippet",
-      //     type: "video",
-      //     order: self.request.sortBy || "searchSortUnspecified",
-      //     maxResults: self.request.maxAmount || 12,
-      //     q: self.request.query,
-      //   }
-      // }).then(function (response) {
-      //   let tempVideos = []
-      //   let videosIds = []
-
-      //   self.videos.videosAmount = response.data.pageInfo.totalResults
-
-      //   response.data.items.forEach(function (video) {
-      //     videosIds.push(video.id.videoId)
-
-      //     tempVideos.push({
-      //       id: video.id.videoId,
-      //       title: video.snippet.title
-      //         .replace(/&amp;quot;/g,'"').replace(/&amp;quot/g,'"').replace(/&quot;/g,'"'),
-      //       channel: video.snippet.channelTitle,
-      //       preview: video.snippet.thumbnails.medium.url,
-      //     })
-      //   })
-
-      //   /* Getting videos views */
-      //   axios.get("https://www.googleapis.com/youtube/v3/videos", {
-      //     params: {
-      //       key: apiKey,
-      //       part: "statistics",
-      //       id: videosIds.join(),
-      //     }
-      //   }).then(function (response) {
-      //     let videos = response.data.items
-
-      //     for (let i = 0; i < videos.length; i++) {
-      //       tempVideos[i].viewCount = Number(videos[i].statistics.viewCount)
-      //     }
-
-      //     self.videos.items = tempVideos.splice(0, tempVideos.length)
-      //   })
-      // }).then(function () {
-      //   self.isSearchCompleted = true
-      // })
     },
   }
 }
