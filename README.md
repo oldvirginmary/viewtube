@@ -3,25 +3,21 @@
 ## Дизайн проекта
 https://www.figma.com/file/fCZ4sYIR03cLHY1gR9lUaq/ViewTube?node-id=4%3A89
 
-## Project setup
+## Настройка проекта
 ```
 npm install
 ```
+Необходимо, также, создать в корне файл api-key.js. Экспортировать из него строку с вашим YouTube Api ключем
+```
+export let apiKey = "AIzaSyA57L-11lPTqBNLQnvpxmfQtrsZtNgxV09";
+```
 
-### Compiles and hot-reloads for development
+### Компилирование и подготовка для разработки
 ```
 npm run serve
 ```
 
-### Compiles and minifies for production
+### Компилирование и подготовка для производства
 ```
 npm run build
 ```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
