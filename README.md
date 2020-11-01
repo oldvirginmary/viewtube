@@ -7,7 +7,9 @@ https://www.figma.com/file/fCZ4sYIR03cLHY1gR9lUaq/ViewTube?node-id=4%3A89
 ```
 npm install
 ```
-Необходимо, также, создать в корне файл api-key.js. Экспортировать из него строку с вашим YouTube Api ключем
+Необходимо, также, создать в корне файл api-key.js. Экспортировать из него строку с вашим YouTube Api ключем.  
+  
+Например:
 ```
 export let apiKey = "AIzaSyA57L-11lPTqBNLQnvpxmfQtrsZtNgxV09";
 ```
