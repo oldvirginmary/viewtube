@@ -1,7 +1,7 @@
 # viewtube
 
 ## Дизайн проекта
-https://www.figma.com/file/fCZ4sYIR03cLHY1gR9lUaq/ViewTube?node-id=4%3A89
+https://www.figma.com/file/fCZ4sYIR03cLHY1gR9lUaq/ViewTube
 
 ## Настройка проекта
 ```
