@@ -1,7 +1,7 @@
 # viewtube
 
-## Дизайн проекта
-https://www.figma.com/file/fCZ4sYIR03cLHY1gR9lUaq/ViewTube
+## Готовый продукт
+https://viewtube.vercel.app/
 
 ## Настройка проекта
 ```
